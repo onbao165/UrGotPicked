@@ -1,0 +1,112 @@
+@font-face {
+  font-family: 'Beaufort';
+  src: url('/fonts/Beaufort-Regular.woff2') format('woff2'),
+    url('/fonts/Beaufort-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Beaufort';
+  src: url('/fonts/Beaufort-Bold.woff2') format('woff2'),
+    url('/fonts/Beaufort-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+:root {
+  font-family: 'Beaufort', serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Urgot-themed colors */
+  --urgot-primary: #10311d;
+  --urgot-secondary: #1B2A3A;
+  --urgot-accent: #00FFB2;
+  --urgot-highlight: #66FCF1;
+  --text-primary: #E7F6F2;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--urgot-primary);
+  background-image: url('/urgot-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  padding: 0 2rem;
+  min-height: 100vh;
+  background: linear-gradient(rgba(26, 31, 37, 0.9), rgba(26, 31, 37, 0.9));
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, rgba(0, 255, 200, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#root {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 0.25rem;
+  border: none;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: linear-gradient(to right, var(--urgot-secondary), var(--urgot-accent));
+  color: var(--urgot-highlight);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--urgot-highlight);
+  color: var(--urgot-primary);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}

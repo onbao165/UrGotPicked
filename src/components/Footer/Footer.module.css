@@ -1,0 +1,45 @@
+.footer {
+  width: 100%;
+  margin-top: auto;
+  text-align: center;
+}
+
+.text {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.link {
+  color: var(--urgot-highlight);
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    var(--urgot-highlight),
+    var(--urgot-accent)
+  );
+  transform: scaleX(0);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.link:hover {
+  color: var(--urgot-accent);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
+  opacity: 1;
+  box-shadow: 0 0 8px var(--urgot-highlight);
+} 

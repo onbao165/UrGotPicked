@@ -60,12 +60,19 @@ export const useTeamComposition = (setup: TeamSetup | null) => {
     }
   }, [setup]);
 
+  const getAvailableRoles = useCallback((): Role[] => {
+    if (!setup) return [];
+    const filledRoles = new Set(selectedPlayers.map(p => p.role));
+    return setup.requiredRoles.filter(role => !filledRoles.has(role));
+  }, [setup, selectedPlayers]);
+
   return {
     selectedPlayers,
     currentRole,
     pickOrder,
     addPlayer,
     removePlayer,
-    resetTeam
+    resetTeam,
+    getAvailableRoles
   };
 }; 

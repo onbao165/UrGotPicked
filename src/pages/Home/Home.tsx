@@ -1,125 +1,90 @@
-import { useState, useCallback } from 'react';
-import Wheel from '../../components/Wheel/Wheel';
-import { Player, SpinMode, TeamSetup, Role } from '../../types';
-import styles from './Home.module.css';
-import TeamBanner from '../../components/TeamBanner/TeamBanner';
-import { useTeamComposition } from '../../hooks/useTeamComposition';
-import { Row, Col } from 'antd';
-
-const teamSetups: Record<SpinMode, TeamSetup> = {
-  DUO: {
-    mode: 'DUO',
-    requiredRoles: ['ADC', 'SUPPORT'],
-    maxPlayers: 2
-  },
-  TRIO: {
-    mode: 'TRIO',
-    requiredRoles: ['TOP', 'JUNGLE', 'MID'],
-    maxPlayers: 3
-  },
-  FLEX: {
-    mode: 'FLEX',
-    requiredRoles: ['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT'],
-    maxPlayers: 5
-  },
-  CUSTOM: {
-    mode: 'CUSTOM',
-    requiredRoles: [],
-    maxPlayers: 0
-  }
-};
-
+import { useCallback } from 'react'
+import Wheel from '../../components/Wheel/Wheel'
+import { SpinMode, Role } from '../../types'
+import styles from './Home.module.css'
+import TeamBanner from '../../components/TeamBanner/TeamBanner'
+import { useTeamComposition } from '../../hooks/useTeamComposition'
+import { Row, Col } from 'antd'
+import { useModeManagement } from '../../hooks/useModeManagement'
+import { usePlayerManagement } from '../../hooks/usePlayerManagement'
+import { useWheelManagement } from '../../hooks/useWheelManagement'
+import { teamSetups } from '../../configs/teamSetups'
 const Home = () => {
-  const [mode, setMode] = useState<SpinMode | null>(null);
-  const [setup, setSetup] = useState<TeamSetup | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [newPlayer, setNewPlayer] = useState('');
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(0);
+  const { mode, setup, handleModeSelect, handleGoBack } = useModeManagement()
+
+  const {
+    players,
+    setPlayers,
+    newPlayer,
+    setNewPlayer,
+    duplicateError,
+    setDuplicateError,
+    selectedRole,
+    setSelectedRole,
+    isDuplicate,
+    handleAddPlayer,
+    handleRemoveWheelPlayer,
+    handleRemoveTeamPlayer,
+  } = usePlayerManagement()
+
+  const {
+    mustSpin,
+    setMustSpin,
+    prizeNumber,
+    handleSpinClick,
+  } = useWheelManagement()
 
   const {
     selectedPlayers,
     currentRole,
     addPlayer,
+    resetTeam,
     removePlayer,
-    resetTeam
-  } = useTeamComposition(setup);
+    getAvailableRoles,
+  } = useTeamComposition(setup)
 
-  const handleModeSelect = (selectedMode: SpinMode) => {
-    setMode(selectedMode);
-    setSetup(teamSetups[selectedMode]);
-    resetTeam();
-  };
+  const handleSpinComplete = useCallback(
+    (winner: string) => {
+      setMustSpin(false)
+      if (!setup || !currentRole) return
 
-  const handleAddPlayer = () => {
-    if (!newPlayer.trim()) return;
-    
-    // Check if player name already exists
-    const isDuplicate = [...players, ...selectedPlayers].some(
-      p => p.name.toLowerCase() === newPlayer.toLowerCase()
-    );
-    
-    if (isDuplicate) {
-      return; // Don't add duplicate names
-    }
-    
-    if (selectedRole) {
-      const newTeamPlayer = { 
-        name: newPlayer, 
-        id: crypto.randomUUID(),
-      };
-      addPlayer(newTeamPlayer, selectedRole);
-    } else {
-      setPlayers([...players, { name: newPlayer, id: crypto.randomUUID() }]);
-    }
-    setNewPlayer('');
-    setSelectedRole(null);
-  };
+      const winningPlayer = players.find((p) => p.name === winner)
+      if (!winningPlayer) return
 
-  const handleRemoveWheelPlayer = (playerId: string) => {
-    setPlayers(players.filter(p => p.id !== playerId));
-  };
+      // Create updated state values FIRST
+      const newPlayers = players.filter((p) => p.id !== winningPlayer.id)
+      const newSelectedCount = selectedPlayers.length + 1
+      const availableRoles = getAvailableRoles().filter(
+        (role) => role !== currentRole,
+      )
+      // Update state in sequence
+      setPlayers(newPlayers)
+      addPlayer(winningPlayer, currentRole)
 
-  const handleRemovePlayer = (playerId: string) => {
-    const playerToRemove = selectedPlayers.find(p => p.id === playerId);
-    if (playerToRemove) {
-      setPlayers([...players, { name: playerToRemove.name, id: playerToRemove.id }]);
-      removePlayer(playerId);
-    }
-  };
-
-  const handleResetTeam = () => {
-    setPlayers([...players, ...selectedPlayers.map(p => ({ name: p.name, id: p.id }))]);
-    resetTeam();
-  };
-
-  const handleSpinComplete = useCallback((winner: string) => {
-    setMustSpin(false);
-    if (!setup || !currentRole) return;
-    const winningPlayer = players.find(p => p.name === winner);
-    if (!winningPlayer) return;
-
-    // Remove the player first to prevent state inconsistency
-    setPlayers(prevPlayers => prevPlayers.filter(p => p.id !== winningPlayer.id));
-    // Then add them to the team
-    addPlayer(winningPlayer, currentRole);
-  }, [players, setup, currentRole, addPlayer]);
-
-  const handleSpinClick = () => {
-    if (!mustSpin && selectedPlayers.length !== setup?.maxPlayers) {
-      const newPrizeNumber = Math.floor(Math.random() * players.length);
-      setPrizeNumber(newPrizeNumber);
-      setMustSpin(true);
-    }
-  };
-
-  const handleGoBack = () => {
-    setMode(null);
-    setSetup(null);
-    resetTeam();
-    setPlayers([]);
-  };
+      // Check conditions using UPDATED values
+      if (
+        newPlayers.length === 1 &&
+        newSelectedCount === setup.maxPlayers - 1
+      ) {
+        const lastPlayer = newPlayers[0]
+        // Get available roles after the current player has been added
+        // There should be exactly one role left
+        if (availableRoles.length === 1) {
+          const lastRole = availableRoles[0]
+          setPlayers([])
+          addPlayer(lastPlayer, lastRole)
+        }
+      }
+    },
+    [
+      players,
+      selectedPlayers,
+      setup,
+      currentRole,
+      addPlayer,
+      getAvailableRoles,
+    ],
+  )
 
   if (!mode) {
     return (
@@ -129,7 +94,7 @@ const Home = () => {
           {Object.keys(teamSetups).map((setupMode) => (
             <button
               key={setupMode}
-              onClick={() => handleModeSelect(setupMode as SpinMode)}
+              onClick={() => handleModeSelect(setupMode as SpinMode, resetTeam)}
               className={styles.modeButton}
             >
               {setupMode}
@@ -137,7 +102,7 @@ const Home = () => {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -151,7 +116,9 @@ const Home = () => {
                 players={selectedPlayers}
                 requiredRoles={setup.requiredRoles}
                 maxPlayers={setup.maxPlayers}
-                onRemovePlayer={handleRemovePlayer}
+                onRemovePlayer={(playerId) =>
+                  handleRemoveTeamPlayer(playerId, selectedPlayers, removePlayer)
+                }
               />
             )}
           </div>
@@ -163,33 +130,48 @@ const Home = () => {
                 <input
                   type="text"
                   value={newPlayer}
-                  onChange={(e) => setNewPlayer(e.target.value)}
+                  onChange={(e) => {
+                    setNewPlayer(e.target.value)
+                    setDuplicateError(isDuplicate(e.target.value, players))
+                  }}
                   placeholder="Enter summoner name..."
-                  className={styles.input}
+                  className={`${styles.input} ${
+                    duplicateError ? styles.inputError : ''
+                  }`}
                 />
+                {duplicateError && (
+                  <div className={styles.errorMessage}>✘ Already in pool</div>
+                )}
                 {setup && (
                   <select
                     value={selectedRole || ''}
-                    onChange={(e) => setSelectedRole(e.target.value as Role || null)}
+                    onChange={(e) =>
+                      setSelectedRole((e.target.value as Role) || null)
+                    }
                     className={styles.roleSelect}
                   >
                     <option value="">Add to Wheel</option>
-                    {setup.requiredRoles.map(role => (
-                      <option 
-                        key={role} 
+                    {setup.requiredRoles.map((role) => (
+                      <option
+                        key={role}
                         value={role}
-                        disabled={selectedPlayers.some(p => p.role === role)}
+                        disabled={selectedPlayers.some((p) => p.role === role)}
                       >
                         Add as {role}
                       </option>
                     ))}
                   </select>
                 )}
-                <button onClick={handleAddPlayer} className={styles.addButton}>
+                <button
+                  onClick={() =>
+                    handleAddPlayer(newPlayer, selectedRole as Role, addPlayer)
+                  }
+                  className={styles.addButton}
+                >
                   Add Summoner
                 </button>
                 <button
-                  onClick={handleGoBack}
+                  onClick={() => handleGoBack(resetTeam, setPlayers)}
                   className={`${styles.button} ${styles.backButton}`}
                 >
                   Go Back
@@ -199,7 +181,7 @@ const Home = () => {
                 <div className={styles.wheelPlayers}>
                   <h3>Summoners in Wheel</h3>
                   <div className={styles.playersList}>
-                    {players.map(player => (
+                    {players.map((player) => (
                       <div key={player.id} className={styles.playerItem}>
                         <span>{player.name}</span>
                         <button
@@ -217,21 +199,25 @@ const Home = () => {
             </div>
             {players.length > 1 && setup && (
               <>
-                <Wheel 
-                  players={players.map(p => p.name)}
+                <Wheel
+                  players={players.map((p) => p.name)}
                   onSpinComplete={handleSpinComplete}
                   mustSpin={mustSpin}
                   prizeNumber={prizeNumber}
                 />
                 <button
-                  onClick={handleSpinClick}
-                  disabled={mustSpin || selectedPlayers.length === setup.maxPlayers}
+                  onClick={() =>
+                    handleSpinClick(players, selectedPlayers, setup)
+                  }
+                  disabled={
+                    mustSpin || selectedPlayers.length === setup.maxPlayers
+                  }
                   className={styles.spinButton}
                 >
                   Spin the Wheel
                 </button>
-                <button 
-                  onClick={handleResetTeam}
+                <button
+                  onClick={resetTeam}
                   className={`${styles.button} ${styles.resetButton}`}
                 >
                   Reset Team
@@ -242,7 +228,7 @@ const Home = () => {
         </Col>
       </Row>
     </div>
-  );
-};
+  )
+}
 
-export default Home; 
+export default Home

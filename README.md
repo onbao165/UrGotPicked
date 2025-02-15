@@ -1,50 +1,40 @@
-# React + TypeScript + Vite
+# 🎮 UrGotPicked
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Can't decide who's playing and what role they should take? Let Urgot handle your team drama!
 
-Currently, two official plugins are available:
+## What's This?
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+UrGotPicked is a fun team picker for League of Legends that solves two eternal questions:
+1. Who's actually playing tonight? (when you have too many friends online)
+2. Who's going to which lane? (without the usual "mid or feed" drama)
 
-## Expanding the ESLint configuration
+### 🎯 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Multiple Team Modes**
+  - DUO (2 players) - Perfect for bot lane besties
+  - TRIO (3 players) - Top-side trio action
+  - FLEX (5 players) - Full team experience
+  - CUSTOM (5 players, role-free chaos!)
 
-- Configure the top-level `parserOptions` property like this:
+- **Two Ways to Pick**
+  - 🎡 Spin the Wheel - Watch your friends' fate spin before their eyes
+  - ⚡ Rapid Pick - Quick and dirty team formation
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### 🎲 How It Works
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+1. Choose your team size
+2. Add all your available friends to the wheel
+3. Let the wheel decide who plays and where
+4. No takebacks - Urgot has spoken!
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## 🛠️ Tech Stack
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Built with React + TypeScript, because we take this business seriously!
+
+## 🎨 Style
+
+Rocking that toxic green Urgot theme, because who doesn't want their role picker to look like it came straight from Zaun?
+
+---
+
+*Remember: If Urgot picks you for support, it's not a suggestion – it's your destiny!* 

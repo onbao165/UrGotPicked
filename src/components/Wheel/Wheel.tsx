@@ -1,6 +1,7 @@
-import React, { memo } from 'react'
+import React, { memo, useMemo, useCallback } from 'react'
 import { Wheel as RouletteWheel } from 'react-custom-roulette'
 import styles from './Wheel.module.css'
+import { useWheelFontSize } from '../../hooks/useWheelFontSize'
 
 interface WheelProps {
   players: string[]
@@ -15,12 +16,13 @@ const Wheel: React.FC<WheelProps> = ({
   mustSpin,
   prizeNumber,
 }) => {
-  // Create alternating colors for wheel segments
-  const getBackgroundColors = (count: number) => {
-    return Array(count)
+  const fontSize = useWheelFontSize()
+
+  const getBackgroundColors = useMemo(() => {
+    return Array(players.length)
       .fill('')
       .map((_, index) => {
-        const ratio = index / count
+        const ratio = index / players.length
         const primary = [16, 49, 29] // Dark industrial green
         const secondary = [0, 255, 178] // Toxic green (Urgot's theme)
 
@@ -31,15 +33,23 @@ const Wheel: React.FC<WheelProps> = ({
 
         return `rgba(${r}, ${g}, ${b})`
       })
-  }
+  }, [players.length])
 
-  const data = players.map((player) => ({
-    option: player,
-    style: {
-      textColor: '#E7F6F2',
-      fontFamily: 'Beaufort',
-    },
-  }))
+  const wheelData = useMemo(
+    () =>
+      players.map((player) => ({
+        option: player,
+        style: {
+          textColor: '#E7F6F2',
+          fontFamily: 'Beaufort',
+        },
+      })),
+    [players],
+  )
+
+  const handleStopSpinning = useCallback(() => {
+    onSpinComplete(players[prizeNumber])
+  }, [onSpinComplete, players, prizeNumber])
 
   return (
     <div className={styles.wheelContainer}>
@@ -47,30 +57,22 @@ const Wheel: React.FC<WheelProps> = ({
         <RouletteWheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}
-          data={data}
-          onStopSpinning={() => {
-            onSpinComplete(players[prizeNumber])
-          }}
-          backgroundColors={getBackgroundColors(players.length)}
+          data={wheelData}
+          onStopSpinning={handleStopSpinning}
+          backgroundColors={getBackgroundColors}
           textColors={['#FEFFB1']}
           outerBorderColor="transparent"
           outerBorderWidth={3}
           innerRadius={0}
           radiusLineColor="#EDFF7A"
           radiusLineWidth={3}
-          fontSize={16}
+          fontSize={fontSize}
           spinDuration={0.6}
           pointerProps={{
             src: 'images/indicator.png',
-            style: {
-              width: '5rem',
-              height: '5rem',
-              top: '2rem',
-              right: '0.8rem',
-            },
           }}
           disableInitialAnimation={true}
-          perpendicularText={true}
+          // perpendicularText={true}
         />
       </div>
     </div>

@@ -74,9 +74,13 @@ body::before {
 }
 
 h1 {
-  font-size: 3.2em;
+  color: var(--urgot-highlight);
+  font-size: 3rem;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   line-height: 1.1;
 }
+
 
 button {
   border-radius: 0.25rem;

@@ -9,6 +9,7 @@ import { useModeManagement } from '../../hooks/useModeManagement'
 import { usePlayerManagement } from '../../hooks/usePlayerManagement'
 import { useWheelManagement } from '../../hooks/useWheelManagement'
 import { teamSetups } from '../../configs/teamSetups'
+
 const Home = () => {
   const { mode, setup, handleModeSelect, handleGoBack } = useModeManagement()
 
@@ -25,6 +26,8 @@ const Home = () => {
     handleAddPlayer,
     handleRemoveWheelPlayer,
     handleRemoveTeamPlayer,
+    handleResetTeam,
+    handleRapidPick,
   } = usePlayerManagement()
 
   const {
@@ -108,8 +111,8 @@ const Home = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>UrGotPicked</h1>
-      <Row gutter={[24, 24]}>
-        <Col xs={24} sm={24} md={10} lg={10} xl={10}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={24} md={24} lg={10} xl={10}>
           <div className={styles.bannerSection}>
             {setup && (
               <TeamBanner
@@ -117,13 +120,18 @@ const Home = () => {
                 requiredRoles={setup.requiredRoles}
                 maxPlayers={setup.maxPlayers}
                 onRemovePlayer={(playerId) =>
-                  handleRemoveTeamPlayer(playerId, selectedPlayers, removePlayer)
+                  handleRemoveTeamPlayer(
+                    playerId,
+                    selectedPlayers,
+                    removePlayer,
+                  )
                 }
+                setup={setup}
               />
             )}
           </div>
         </Col>
-        <Col xs={24} sm={24} md={14} lg={14} xl={14}>
+        <Col xs={24} sm={24} md={24} lg={14} xl={14}>
           <div className={styles.wheelSection}>
             <div className={styles.playerManagement}>
               <div className={styles.inputGroup}>
@@ -151,12 +159,8 @@ const Home = () => {
                     className={styles.roleSelect}
                   >
                     <option value="">Add to Wheel</option>
-                    {setup.requiredRoles.map((role) => (
-                      <option
-                        key={role}
-                        value={role}
-                        disabled={selectedPlayers.some((p) => p.role === role)}
-                      >
+                    {Array.from(new Set(getAvailableRoles())).map((role) => (
+                      <option key={role} value={role}>
                         Add as {role}
                       </option>
                     ))}
@@ -172,57 +176,100 @@ const Home = () => {
                 </button>
                 <button
                   onClick={() => handleGoBack(resetTeam, setPlayers)}
-                  className={`${styles.button} ${styles.backButton}`}
+                  className={`${styles.backButton}`}
                 >
                   Go Back
                 </button>
               </div>
-              {players.length > 0 && (
-                <div className={styles.wheelPlayers}>
-                  <h3>Summoners in Wheel</h3>
-                  <div className={styles.playersList}>
-                    {players.map((player) => (
-                      <div key={player.id} className={styles.playerItem}>
-                        <span>{player.name}</span>
-                        <button
-                          onClick={() => handleRemoveWheelPlayer(player.id)}
-                          className={styles.removeButton}
-                          aria-label="Remove player"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
+
             {players.length > 1 && setup && (
-              <>
-                <Wheel
-                  players={players.map((p) => p.name)}
-                  onSpinComplete={handleSpinComplete}
-                  mustSpin={mustSpin}
-                  prizeNumber={prizeNumber}
-                />
-                <button
-                  onClick={() =>
-                    handleSpinClick(players, selectedPlayers, setup)
-                  }
-                  disabled={
-                    mustSpin || selectedPlayers.length === setup.maxPlayers
-                  }
-                  className={styles.spinButton}
-                >
-                  Spin the Wheel
-                </button>
-                <button
-                  onClick={resetTeam}
-                  className={`${styles.button} ${styles.resetButton}`}
-                >
-                  Reset Team
-                </button>
-              </>
+              <div className={styles.wheelContent}>
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} md={16}>
+                    <Wheel
+                      players={players.map((p) => p.name)}
+                      onSpinComplete={handleSpinComplete}
+                      mustSpin={mustSpin}
+                      prizeNumber={prizeNumber}
+                    />
+                  </Col>
+                  <Col xs={24} md={8}>
+                    <div className={styles.wheelControls}>
+                      <button
+                        onClick={() =>
+                          handleSpinClick(players, selectedPlayers, setup)
+                        }
+                        disabled={
+                          mustSpin ||
+                          selectedPlayers.length === setup.maxPlayers
+                        }
+                        className={styles.spinButton}
+                      >
+                        Blind Pick
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleRapidPick(
+                            players,
+                            setup,
+                            addPlayer,
+                            getAvailableRoles(),
+                          )
+                        }
+                        disabled={
+                          players.length < getAvailableRoles().length ||
+                          mustSpin
+                        }
+                        className={styles.rapidButton}
+                      >
+                        Rapid Pick
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleResetTeam(selectedPlayers, resetTeam)
+                        }
+                        className={`${styles.resetButton}`}
+                      >
+                        Reset Team
+                      </button>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            )}
+
+            {players.length > 0 && (
+              <div className={styles.wheelPlayers}>
+                <h3>Summoners in Wheel</h3>
+                <div className={styles.playersList}>
+                  {players.map((player) => (
+                    <div key={player.id} className={styles.playerItem}>
+                      <span>{player.name}</span>
+                      <button
+                        onClick={() => handleRemoveWheelPlayer(player.id)}
+                        className={styles.removeButton}
+                        aria-label="Remove player"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {players.length < 2 && (
+              <div className={styles.notification}>
+                Add at least 2 summoners to spin the wheel
+              </div>
+            )}
+
+            {players.length < getAvailableRoles().length && (
+              <div className={styles.notification}>
+                Add at least {getAvailableRoles().length} summoners to rapid
+                pick
+              </div>
             )}
           </div>
         </Col>

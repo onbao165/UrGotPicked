@@ -22,6 +22,6 @@ export const useWheelManagement = () => {
     setMustSpin,
     prizeNumber,
     setPrizeNumber,
-    handleSpinClick
+    handleSpinClick,
   };
 }; 

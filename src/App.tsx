@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Navbar } from './components/Navbar/Navbar'
+// import { Navbar } from './components/Navbar/Navbar'
 import { Footer } from './components/Footer/Footer'
 import { routes } from './configs/routes'
 import './App.css'
@@ -8,7 +8,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app-wrapper">
-        <Navbar />
+        {/* <Navbar /> */}
         <main>
           <Routes>
             {routes.map(({ path, element }) => (

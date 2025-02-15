@@ -1,5 +1,5 @@
 .navbar {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -15,16 +15,8 @@
 .content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: right;
   height: 4rem;
-}
-
-.logo {
-  color: var(--urgot-highlight);
-  font-size: 1.25rem;
-  font-family: 'Beaufort', serif;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
 }
 
 .navLinks {

@@ -3,9 +3,7 @@
    ====================== */
 .container {
     width: 100%;
-    min-height: calc(100vh - 2.5rem);
-    /* Account for margin-top */
-    margin-top: 2.5rem;
+    /* margin-top: 2.5rem; */
     display: flex;
     flex-direction: column;
 }
@@ -35,25 +33,48 @@ button {
     transition: all 0.3s ease;
 }
 
+button:not(.backButton, .rapidButton, .resetButton):hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.3);
+}
+
 .modeButton,
 .addButton,
-.resetButton,
 .spinButton {
     background: linear-gradient(to right, var(--urgot-secondary), var(--urgot-accent));
     color: var(--text-primary);
 }
 
+.rapidButton {
+    background: linear-gradient(to right, #10312B, #00FF87);
+    color: var(--text-primary);
+}
+
+.rapidButton:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 15px rgba(0, 255, 135, 0.3);
+}
+
+.resetButton {
+    background: linear-gradient(to right, #573144, #8ec64f);
+    color: var(--text-primary);
+}
+
+.resetButton:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0 15px rgba(106, 159, 78, 0.3);
+}
+
 .modeButton {
     padding: 1rem 2rem;
-    font-size: 1.2rem;
     border-radius: 0.5rem;
 }
 
 .resetButton,
-.spinButton {
+.spinButton,
+.rapidButton {
     max-width: 15rem;
     padding: 1rem 2rem;
-    font-size: 1.125rem;
 }
 
 .backButton {
@@ -62,18 +83,14 @@ button {
     margin-left: auto;
 }
 
-button:not(.backButton):hover:not(:disabled) {
-    transform: translateY(-0.2rem);
-    box-shadow: 0 0 15px rgba(0, 255, 200, 0.3);
-}
-
 .backButton:hover {
     transform: translateY(-0.2rem);
     background: linear-gradient(to left, var(--urgot-secondary), #E74C3C);
     box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
 }
 
-.spinButton:disabled {
+.spinButton:disabled,
+.rapidButton:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
@@ -194,7 +211,7 @@ button:not(.backButton):hover:not(:disabled) {
    Layout Sections
    ====================== */
 .modeSelection {
-    height: 100vh;
+    height: 80vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -220,7 +237,7 @@ button:not(.backButton):hover:not(:disabled) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    box-sizing: border-box;
 }
 
 /* ======================
@@ -231,12 +248,14 @@ button:not(.backButton):hover:not(:disabled) {
 }
 
 .wheelPlayers {
+    width: 100%;
     max-height: 12rem;
     overflow-y: auto;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 .wheelPlayers h3 {
+    font-family: 'Beaufort', serif;
     margin: 0;
 }
 
@@ -269,4 +288,83 @@ button:not(.backButton):hover:not(:disabled) {
     border: 2px solid var(--urgot-accent);
     border-radius: 0.25rem;
     animation: glow 2s infinite alternate;
+}
+
+.wheelContent {
+    width: 100%;
+    min-height: 28rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wheelControls {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0 1rem;
+    min-height: inherit;
+}
+
+.notification {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(10, 25, 33, 0.8);
+    border: 1px solid var(--urgot-highlight);
+    border-radius: 0.25rem;
+    color: var(--urgot-highlight);
+    font-family: 'Beaufort', serif;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 1024px) {
+    .wheelContent {
+        min-height: 20rem;
+    }
+
+    button {
+        font-size: 0.8rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+
+    .bannerSection,
+    .wheelSection {
+        margin: 0 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+
+    button {
+        font-size: 1rem;
+    }
+
+    .modeButton {
+        width: 8rem;
+        padding: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .inputGroup {
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+    }
+
+    .wheelControls {
+        padding: 0.5rem;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .spinButton,
+    .rapidButton,
+    .resetButton {
+        width: 8rem;
+        padding: 1rem;
+    }
 }

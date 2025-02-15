@@ -6,27 +6,30 @@ export const useTeamComposition = (setup: TeamSetup | null) => {
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
   const [pickOrder, setPickOrder] = useState(1);
 
-  // Add useEffect to initialize currentRole when setup changes
   useEffect(() => {
     if (setup && setup.requiredRoles.length > 0) {
-      setCurrentRole(setup.requiredRoles[0]);
+      setCurrentRole(setup.isCustom ? 'UNKNOWN' : setup.requiredRoles[0]);
     }
   }, [setup]);
 
   const addPlayer = useCallback((player: Player, role: Role) => {
     const updatedPlayer = {
       ...player,
-      role,
+      role: setup?.isCustom ? 'UNKNOWN' : role,
       pickOrder: pickOrder,
     };
     setSelectedPlayers(prev => [...prev, updatedPlayer]);
     setPickOrder(prev => prev + 1);
 
-    // Find next available role
+    // For custom mode, always set currentRole to UNKNOWN if more slots available
     if (setup) {
-      const filledRoles = new Set([...selectedPlayers, updatedPlayer].map(p => p.role));
-      const nextRole = setup.requiredRoles.find(role => !filledRoles.has(role));
-      setCurrentRole(nextRole || null);
+      if (setup.isCustom) {
+        setCurrentRole('UNKNOWN');
+      } else {
+        const filledRoles = new Set([...selectedPlayers, updatedPlayer].map(p => p.role));
+        const nextRole = setup.requiredRoles.find(role => !filledRoles.has(role));
+        setCurrentRole(nextRole || null);
+      }
     }
   }, [setup, pickOrder, selectedPlayers]);
 
@@ -62,6 +65,12 @@ export const useTeamComposition = (setup: TeamSetup | null) => {
 
   const getAvailableRoles = useCallback((): Role[] => {
     if (!setup) return [];
+    if (setup.isCustom) {
+      // For custom mode, return UNKNOWN if there are available slots
+      const availableSlots = setup.maxPlayers - selectedPlayers.length;
+      // Return an array of UNKNOWN roles for the available slots
+      return Array(availableSlots).fill('UNKNOWN');
+    }
     const filledRoles = new Set(selectedPlayers.map(p => p.role));
     return setup.requiredRoles.filter(role => !filledRoles.has(role));
   }, [setup, selectedPlayers]);

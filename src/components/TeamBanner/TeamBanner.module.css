@@ -2,7 +2,7 @@
   background: rgba(27, 42, 58, 0.8);
   border: 0.125rem solid var(--urgot-accent);
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .rolesContainer {
@@ -87,3 +87,10 @@
   color: rgba(231, 246, 242, 0.4);
   font-style: italic;
 } 
+ 
+@media screen and (max-width: 768px) {
+  .bannerContainer {
+    padding: 1.5rem;
+  }
+}
+

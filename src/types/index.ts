@@ -1,4 +1,4 @@
-export type Role = 'TOP' | 'JUNGLE' | 'MID' | 'ADC' | 'SUPPORT';
+export type Role = 'TOP' | 'JUNGLE' | 'MID' | 'ADC' | 'SUPPORT' | 'UNKNOWN';
 
 export interface Player {
   name: string;
@@ -13,6 +13,7 @@ export interface TeamSetup {
   mode: SpinMode;
   requiredRoles: Role[];
   maxPlayers: number;
+  isCustom?: boolean;
 }
 
 export interface TeamComposition {

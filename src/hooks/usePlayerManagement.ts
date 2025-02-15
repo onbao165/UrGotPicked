@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Player, Role } from '../types';
+import { Player, Role, TeamSetup } from '../types';
 
 export const usePlayerManagement = () => {
     const [players, setPlayers] = useState<Player[]>([]);
@@ -15,10 +15,6 @@ export const usePlayerManagement = () => {
 
     const handleAddPlayer = useCallback((newPlayer: string, selectedRole: Role, addPlayer: (player: Player, role: Role) => void) => {
         if (!newPlayer.trim() || duplicateError) return;
-
-        if (duplicateError) {
-            return;
-        }
 
         if (selectedRole) {
             const newTeamPlayer = {
@@ -40,9 +36,45 @@ export const usePlayerManagement = () => {
     const handleRemoveTeamPlayer = useCallback((playerId: string, selectedPlayers: Player[], removePlayer: (playerId: string) => void) => {
         const playerToRemove = selectedPlayers.find(p => p.id === playerId);
         if (playerToRemove) {
-            setPlayers([...players, { name: playerToRemove.name, id: playerToRemove.id }]);
+            console.log(players);
+            setPlayers(prev => [...prev, { name: playerToRemove.name, id: playerToRemove.id }]);
             removePlayer(playerId);
         }
+    }, []);
+
+    const handleResetTeam = useCallback((selectedPlayers: Player[], resetTeam: () => void) => {
+        setPlayers(prev => [...prev, ...selectedPlayers]);
+        resetTeam();
+    }, []);
+
+    const handleRapidPick = useCallback((
+        players: Player[],
+        setup: TeamSetup | null,
+        addPlayer: (player: Player, role: Role) => void,
+        availableRoles: Role[]
+    ) => {
+        if (!setup) return;
+
+        const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+        const teamPlayers: Player[] = [];
+
+        if (setup.isCustom) {
+            // For custom mode, just add players with UNKNOWN role
+            shuffledPlayers.slice(0, setup.maxPlayers).forEach((player) => {
+                addPlayer(player, 'UNKNOWN');
+                teamPlayers.push(player);
+            });
+        } else {
+            // For normal modes, match players with roles
+            const roles = [...availableRoles];
+            shuffledPlayers.slice(0, availableRoles.length).forEach((player, index) => {
+                addPlayer(player, roles[index]);
+                teamPlayers.push(player);
+            });
+        }
+
+        // Remove team players from pool
+        setPlayers(prev => prev.filter(p => !teamPlayers.includes(p)));
     }, []);
 
     return {
@@ -57,6 +89,8 @@ export const usePlayerManagement = () => {
         isDuplicate,
         handleAddPlayer,
         handleRemoveWheelPlayer,
-        handleRemoveTeamPlayer
+        handleRemoveTeamPlayer,
+        handleResetTeam,
+        handleRapidPick
     };
 }; 

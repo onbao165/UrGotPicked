@@ -90,7 +90,8 @@ button:not(.backButton, .rapidButton, .resetButton):hover {
 }
 
 .spinButton:disabled,
-.rapidButton:disabled {
+.rapidButton:disabled,
+.resetButton:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }

@@ -45,7 +45,7 @@ const Home = () => {
     removePlayer,
     getAvailableRoles,
   } = useTeamComposition(setup)
-
+  
   const handleSpinComplete = useCallback(
     (winner: string) => {
       setMustSpin(false)
@@ -107,7 +107,6 @@ const Home = () => {
       </div>
     )
   }
-
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>UrGotPicked</h1>
@@ -230,6 +229,7 @@ const Home = () => {
                           handleResetTeam(selectedPlayers, resetTeam)
                         }
                         className={`${styles.resetButton}`}
+                        disabled={selectedPlayers.length === 0}
                       >
                         Reset Team
                       </button>

@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react'
 import { Wheel as RouletteWheel } from 'react-custom-roulette'
 import styles from './Wheel.module.css'
 import { useWheelFontSize } from '../../hooks/useWheelFontSize'
+import indicatorImage from '/images/indicator.png'
 
 interface WheelProps {
   players: string[]
@@ -69,7 +70,7 @@ const Wheel: React.FC<WheelProps> = ({
           fontSize={fontSize}
           spinDuration={0.6}
           pointerProps={{
-            src: 'images/indicator.png',
+            src: indicatorImage,
           }}
           disableInitialAnimation={true}
           // perpendicularText={true}

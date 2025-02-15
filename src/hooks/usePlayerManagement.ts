@@ -36,7 +36,6 @@ export const usePlayerManagement = () => {
     const handleRemoveTeamPlayer = useCallback((playerId: string, selectedPlayers: Player[], removePlayer: (playerId: string) => void) => {
         const playerToRemove = selectedPlayers.find(p => p.id === playerId);
         if (playerToRemove) {
-            console.log(players);
             setPlayers(prev => [...prev, { name: playerToRemove.name, id: playerToRemove.id }]);
             removePlayer(playerId);
         }
